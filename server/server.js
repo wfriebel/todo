@@ -1,8 +1,10 @@
+require('./config/config.js');
+
 const express = require('express');
 const bodyParser = require('body-parser');
+const {ObjectId} = require('mongodb');
 
 const {mongoose} = require('./db/mongoose');
-const {ObjectId} = require('mongodb');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
 
@@ -62,6 +64,35 @@ app.delete('/todos/:id', (req, res) => {
     })
     .catch(e => {
       res.status(404).send("Valid id, but not in collection");
+    })
+})
+
+app.patch('/todos/:id', (req, res) => {
+  const id = req.params.id;
+  // From lodash
+  const body = _.pick(req.body, ['text', 'completed']);
+
+  if (!ObjectId.isValid(id)) {
+    return res.status(404).send("Invalid id");
+  }
+
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime(); // Returns a javascript timestamp
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true})
+    .then(todo => {
+      if (!todo) {
+        res.status(404).send();
+      } else {
+        res.send({todo});
+      }
+    })
+    .catch(e => {
+      res.status(404).send();
     })
 })
 
