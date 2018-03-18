@@ -20,6 +20,3 @@ const todoSchema = mongoose.Schema({
 const Todo = mongoose.model('Todo', todoSchema)
 
 module.exports = {Todo};
-
-// Mongoose will typcast your values to the type specified
-// in the schema. If this is not possible, it will error.

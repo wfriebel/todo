@@ -50,6 +50,21 @@ app.get('/todos/:id', (req, res) => {
     })
 })
 
+app.delete('/todos/:id', (req, res) => {
+  const id = req.params.id;
+  if (!ObjectId.isValid(id)) {
+    return res.status(404).send("Invalid id");
+  }
+
+  Todo.findByIdAndRemove(id)
+    .then(todo => {
+      res.send({todo});
+    })
+    .catch(e => {
+      res.status(404).send("Valid id, but not in collection");
+    })
+})
+
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 })
