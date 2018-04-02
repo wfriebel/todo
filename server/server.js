@@ -4,6 +4,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectId} = require('mongodb');
 const _ = require('lodash');
+const hbs = require('hbs');
+const path = require('path');
+const methodOverride = require('method-override')
 
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
@@ -12,19 +15,30 @@ const {User} = require('./models/user');
 const app = express();
 const port = process.env.PORT;
 
+app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, "../views"));
+
+app.use(express.static(path.join(__dirname, "../public")));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(methodOverride('_method'));
+
+app.get('/todos/new', (req, res) => {
+  res.render('./todos/new');
+})
 
 app.post('/todos', (req, res) => {
-  const todo = new Todo({
-    text: req.body.text
-  });
-
-  todo.save()
-    .then(doc => {
-      res.send(doc);
-    }, err => {
-      res.status(400).send(err);
-    })
+  console.log(req.body);
+  // const todo = new Todo({
+  //   text: req.body.text
+  // });
+  //
+  // todo.save()
+  //   .then(doc => {
+  //     res.send(doc);
+  //   }, err => {
+  //     res.status(400).send(err);
+  //   })
 })
 
 app.get('/todos', (req, res) => {
@@ -53,6 +67,11 @@ app.get('/todos/:id', (req, res) => {
     })
 })
 
+app.get('/todos/:id/edit', (req, res) => {
+  const id = req.params.id;
+  res.render('./todos/edit', {id})
+})
+
 app.delete('/todos/:id', (req, res) => {
   const id = req.params.id;
   if (!ObjectId.isValid(id)) {
@@ -69,32 +88,33 @@ app.delete('/todos/:id', (req, res) => {
 })
 
 app.patch('/todos/:id', (req, res) => {
-  const id = req.params.id;
-  // From lodash
-  const body = _.pick(req.body, ['text', 'completed']);
-
-  if (!ObjectId.isValid(id)) {
-    return res.status(404).send("Invalid id");
-  }
-
-  if (_.isBoolean(body.completed) && body.completed) {
-    body.completedAt = new Date().getTime(); // Returns a javascript timestamp
-  } else {
-    body.completed = false;
-    body.completedAt = null;
-  }
-
-  Todo.findByIdAndUpdate(id, {$set: body}, {new: true})
-    .then(todo => {
-      if (!todo) {
-        res.status(404).send();
-      } else {
-        res.send({todo});
-      }
-    })
-    .catch(e => {
-      res.status(404).send();
-    })
+  console.log(req.body);
+  // const id = req.params.id;
+  // // From lodash
+  // const body = _.pick(req.body, ['text', 'completed']);
+  //
+  // if (!ObjectId.isValid(id)) {
+  //   return res.status(404).send("Invalid id");
+  // }
+  //
+  // if (_.isBoolean(body.completed) && body.completed) {
+  //   body.completedAt = new Date().getTime(); // Returns a javascript timestamp
+  // } else {
+  //   body.completed = false;
+  //   body.completedAt = null;
+  // }
+  //
+  // Todo.findByIdAndUpdate(id, {$set: body}, {new: true})
+  //   .then(todo => {
+  //     if (!todo) {
+  //       res.status(404).send();
+  //     } else {
+  //       res.send({todo});
+  //     }
+  //   })
+  //   .catch(e => {
+  //     res.status(404).send();
+  //   })
 })
 
 app.listen(port, () => {

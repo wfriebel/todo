@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Edit</title>
+  </head>
+  <body>
+    <form action="/todos/{{id}}?_method=PATCH" method="post">
+      <label for="todo-text">Text</label>
+      <input id="todo-text" type="text" name="todo-text" value="">
+      <label for="todo-completed">Completed:</label>
+      <label for="">True</label>
+      <input type="radio" name="todo-completed" value="True">
+      <label for="">False</label>
+      <input type="radio" name="todo-completed" value="False">
+      <input type="submit" name="" value="Submit">
+    </form>
+  </body>
+</html>
