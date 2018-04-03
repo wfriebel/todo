@@ -28,26 +28,29 @@ app.get('/todos/new', (req, res) => {
 })
 
 app.post('/todos', (req, res) => {
-  console.log(req.body);
-  // const todo = new Todo({
-  //   text: req.body.text
-  // });
-  //
-  // todo.save()
-  //   .then(doc => {
-  //     res.send(doc);
-  //   }, err => {
-  //     res.status(400).send(err);
-  //   })
-})
+  const todo = new Todo({
+    text: req.body.text
+  });
 
-app.get('/todos', (req, res) => {
-  Todo.find()
-    .then(todos => {
-      res.send({todos});
+  todo.save()
+    .then(doc => {
+      res.send(doc);
     }, err => {
       res.status(400).send(err);
     })
+})
+
+app.get('/todos', (req, res) => {
+  // Todo.find()
+  //   .then(todos => {
+  //     res.send({todos});
+  //   }, err => {
+  //     res.status(400).send(err);
+  //   })
+  res.send({
+    text: 'eat lunch',
+    completed: 'false'
+  });
 })
 
 app.get('/todos/:id', (req, res) => {
@@ -88,35 +91,36 @@ app.delete('/todos/:id', (req, res) => {
 })
 
 app.patch('/todos/:id', (req, res) => {
-  console.log(req.body);
-  // const id = req.params.id;
-  // // From lodash
-  // const body = _.pick(req.body, ['text', 'completed']);
-  //
-  // if (!ObjectId.isValid(id)) {
-  //   return res.status(404).send("Invalid id");
-  // }
-  //
-  // if (_.isBoolean(body.completed) && body.completed) {
-  //   body.completedAt = new Date().getTime(); // Returns a javascript timestamp
-  // } else {
-  //   body.completed = false;
-  //   body.completedAt = null;
-  // }
-  //
-  // Todo.findByIdAndUpdate(id, {$set: body}, {new: true})
-  //   .then(todo => {
-  //     if (!todo) {
-  //       res.status(404).send();
-  //     } else {
-  //       res.send({todo});
-  //     }
-  //   })
-  //   .catch(e => {
-  //     res.status(404).send();
-  //   })
+  const id = req.params.id;
+  // From lodash
+  const body = _.pick(req.body, ['text', 'completed']);
+
+  if (!ObjectId.isValid(id)) {
+    return res.status(404).send("Invalid id");
+  }
+
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime(); // Returns a javascript timestamp
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true})
+    .then(todo => {
+      if (!todo) {
+        res.status(404).send();
+      } else {
+        res.send({todo});
+      }
+    })
+    .catch(e => {
+      res.status(404).send();
+    })
 })
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 })
+
+module.exports = {app};
