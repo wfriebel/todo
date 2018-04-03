@@ -11,6 +11,7 @@ const methodOverride = require('method-override')
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
+const {authenticate} = require('./middleware/authenticate');
 
 const app = express();
 const port = process.env.PORT;
@@ -119,6 +120,10 @@ app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 })
 
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
+})
+
 app.post('/users', (req, res) => {
   const body = _.pick(req.body, ['email', 'password']);
   const user = new User(body);
@@ -134,5 +139,6 @@ app.post('/users', (req, res) => {
       res.status(400).send(e);
     })
 })
+
 
 module.exports = {app};

@@ -44,12 +44,29 @@ userSchema.methods.toJSON = function() {
 userSchema.methods.generateAuthToken = function() {
   const user = this;
   const access = 'auth';
-  const token = jwt.sign({_id: user._id.toHexString(), access}.toString(), 'abc123');
+  const token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123');
   user.tokens.push({access, token});
   return user.save()
     .then(user => {
       return token;
     })
+}
+
+userSchema.statics.findByToken = function(token) {
+  const User = this;
+  let decoded;
+
+  try {
+    decoded = jwt.verify(token, 'abc123');
+  } catch (e) {
+    return Promise.reject();
+  }
+
+  return User.findOne({
+    '_id': decoded._id,
+    'tokens.token': token,
+    'tokens.access': 'auth'
+  })
 }
 
 const User = mongoose.model('User', userSchema);
