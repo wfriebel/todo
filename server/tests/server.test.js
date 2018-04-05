@@ -126,19 +126,41 @@ describe('DELETE /todo/:id', () => {
       })
   })
 
-  // it('should return 404 if todo not found', done => {
-  //   const hexId = new ObjectID().toHexString();
-  //
-  //   request(app)
-  //     .delete(`/todos/${hexId}`)
-  //     .expect(404)
-  //     .end(done);
-  // })
+  it('should return 404 if todo not found', done => {
+    // const hexId = new ObjectID().toHexString();
+
+    request(app)
+      .delete(`/todos/123`)
+      .expect(404)
+      .end(done);
+  })
 
   it('should return 404 if objectID is invalid', done => {
     request(app)
       .delete(`/todos/123`)
       .expect(404)
       .end(done)
+  })
+})
+
+describe('GET /users/me', () => {
+  it('should return user if authenticated', done => {
+    request(app)
+      .get('/users/me')
+      .set('x-auth', users[0].tokens[0].token)
+      .expect(200)
+      .expect(res => {
+        expect(res.body._id).to.equal(users[0]._id.toHexString());
+      })
+      .end(done);
+  })
+  it('should return 401 if not authenticated', done => {
+    request(app)
+      .get('/users/me')
+      .expect(401)
+      .expect(res => {
+        expect(res.body).to.eql({});
+      })
+      .end(done);
   })
 })
